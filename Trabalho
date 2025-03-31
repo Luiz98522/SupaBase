@@ -1,0 +1,250 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login com Supabase</title>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-image: url("programacao-scaled.jpg"); 
+            background-size: cover; 
+            background-position: center; 
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+        }
+        
+
+        .container {
+            background-color: rgba(255, 255, 255, 0.8);
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+            width: 100%;
+            max-width: 400px;
+        }
+
+        h2 {
+            text-align: center;
+            color: #333;
+        }
+
+        input {
+            width: 95%;
+            padding: 10px;
+            margin: 10px 0;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            font-size: 16px;
+        }
+
+        button {
+            width: 100%;
+            padding: 10px;
+            margin: 10px 0;
+            border: none;
+            border-radius: 4px;
+            background-color: #0db613;
+            color: white;
+            font-size: 16px;
+            cursor: pointer;
+            transition: background-color 0.3s ease, transform 0.3s ease;
+        }
+
+        button:hover {
+            background-color: #4CAF50;
+            transform: scale(1.05); 
+        }
+
+        p {
+            text-align: center;
+            color: #d9534f;
+            font-size: 14px;
+        }
+
+        .info-message {
+            color: #5bc0de;
+        }
+
+        .oauth-buttons {
+            margin-top: 20px;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .oauth-icon {
+            width: 100%;
+            padding: 12px 10px;
+            margin: 10px 0;
+            border: none;
+            border-radius: 4px;
+            font-size: 16px;
+            background-color: white;
+            cursor: pointer;
+            transition: background-color 0.3s ease, transform 0.3s ease;
+            text-align: center;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .oauth-icon img {
+            width: 30px; 
+            height: auto;
+        }
+
+        .oauth-icon:hover {
+            opacity: 0.9;
+            transform: scale(1.05); 
+        }
+
+        .oauth-icon:focus {
+            outline: none;
+            border-color: #0db613;
+        }
+
+        .google {
+            background-color: #ffffff; 
+        }
+
+        .facebook {
+            background-color: #3b5998; 
+        }
+
+        .twitter {
+            background-color: #000000; 
+        }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <h2>Login com Supabase</h2>
+
+        <form onsubmit="return false;">
+            <input type="email" id="email" placeholder="Digite seu email" required>
+            <input type="password" id="senha" placeholder="Digite sua senha" required>
+            <button type="button" onclick="login()">Entrar</button>
+            <button type="button" onclick="cadastrar()">Cadastrar</button>
+        </form>
+
+        <p id="mensagem" class="info-message"></p>
+
+        <div class="oauth-buttons">
+
+            <button class="oauth-icon google" onclick="loginWithGoogle()">
+                <img src="google.png" alt="Google">
+            </button>
+            <button class="oauth-icon facebook" onclick="loginWithFacebook()">
+                <img src="facebook.png" alt="Facebook">
+            </button>
+            <button class="oauth-icon twitter" onclick="loginWithTwitter()">
+                <img src="twitter.png" alt="Twitter">
+            </button>
+        </div>
+    </div>
+
+    <script>
+        const supabase = window.supabase.createClient(
+            "https://rxfuzagqhzarjqlcdeek.supabase.co",
+            "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InJ4ZnV6YWdxaHphcmpxbGNkZWVrIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDMwOTc4MTcsImV4cCI6MjA1ODY3MzgxN30.XOveS8CVCYoxDPv1KNyGrvJTSlSjsWr6bZDl3X2mFKo"
+        );
+
+        async function login() {
+            console.log("Tentando fazer login...");
+            const email = document.getElementById("email").value.trim();
+            const senha = document.getElementById("senha").value.trim();
+            
+            if (!email || !senha) {
+                document.getElementById("mensagem").innerText = "Preencha todos os campos!";
+                return;
+            }
+
+            const { data, error } = await supabase.auth.signInWithPassword({ email, password: senha });
+
+            if (error) {
+                document.getElementById("mensagem").innerText = "Erro: " + error.message;
+            } else {
+                document.getElementById("mensagem").innerText = "Login realizado com sucesso!";
+                localStorage.setItem("usuarioEmail", email);
+                setTimeout(() => {
+                    window.location.href = "bem-vindo.html";
+                }, 2000);
+            }
+        }
+
+        async function cadastrar() {
+            console.log("Tentando cadastrar...");
+            const email = document.getElementById("email").value.trim();
+            const senha = document.getElementById("senha").value.trim();
+
+            if (!email || !senha) {
+                document.getElementById("mensagem").innerText = "Preencha todos os campos!";
+                return;
+            }
+
+            const { data, error } = await supabase.auth.signUp({ email, password: senha });
+
+            if (error) {
+                document.getElementById("mensagem").innerText = "Erro: " + error.message;
+            } else {
+                document.getElementById("mensagem").innerText = "Cadastro realizado com sucesso!";
+            }
+        }
+
+        async function loginWithGoogle() {
+            const { user, session, error } = await supabase.auth.signInWithOAuth({
+                provider: 'google',
+            });
+
+            if (error) {
+                document.getElementById("mensagem").innerText = "Erro: " + error.message;
+            } else {
+                document.getElementById("mensagem").innerText = "Login com Google realizado com sucesso!";
+                localStorage.setItem("usuarioEmail", user.email);
+                setTimeout(() => {
+                    window.location.href = "bem-vindo.html";
+                }, 2000);
+            }
+        }
+
+        async function loginWithFacebook() {
+            const { user, session, error } = await supabase.auth.signInWithOAuth({
+                provider: 'facebook',
+            });
+
+            if (error) {
+                document.getElementById("mensagem").innerText = "Erro: " + error.message;
+            } else {
+                document.getElementById("mensagem").innerText = "Login com Facebook realizado com sucesso!";
+                localStorage.setItem("usuarioEmail", user.email);
+                setTimeout(() => {
+                    window.location.href = "bem-vindo.html";
+                }, 2000);
+            }
+        }
+
+        async function loginWithTwitter() {
+            const { user, session, error } = await supabase.auth.signInWithOAuth({
+                provider: 'twitter',
+            });
+
+            if (error) {
+                document.getElementById("mensagem").innerText = "Erro: " + error.message;
+            } else {
+                document.getElementById("mensagem").innerText = "Login com Twitter realizado com sucesso!";
+                localStorage.setItem("usuarioEmail", user.email);
+                setTimeout(() => {
+                    window.location.href = "bem-vindo.html";
+                }, 2000);
+            }
+        }
+    </script>
+
+</body>
+</html>
